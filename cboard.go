@@ -1,4 +1,4 @@
-package cboard
+package main
 
 import (
 	"image"
@@ -9,32 +9,43 @@ var (
 	ColorDraw       = color.Black
 	ColorBackGround = color.White
 	ColorGrid       = color.RGBA{R: 238, G: 238, B: 238, A: 255}
+	GridW           = 20
+	GridH           = 20
+	GridD           = 4
 )
 
 func NewCB(w, h int) *CB {
-	matrix := make([][]color.Color, h)
+	Pix := make([][]color.Color, h)
 	for i := 0; i < h; i++ {
-		matrix[i] = make([]color.Color, w)
+		Pix[i] = make([]color.Color, w)
 	}
 	return &CB{
-		Rect:            image.Rect(0, 0, w, h),
-		Matrix:          matrix,
+		W:               w,
+		H:               h,
+		GridW:           GridW,
+		GridH:           GridH,
+		GridD:           GridD,
 		ColorDraw:       ColorDraw,
 		ColorBackGround: ColorBackGround,
 		ColorGrid:       ColorGrid,
+		Pix:             Pix,
 	}
 }
 
 type CB struct {
-	Rect            image.Rectangle
-	Matrix          [][]color.Color
+	W               int
+	H               int
+	GridW           int
+	GridH           int
+	GridD           int
 	ColorDraw       color.Color
 	ColorBackGround color.Color
 	ColorGrid       color.Color
+	Pix             [][]color.Color
 }
 
 func (cb *CB) Get(x, y int) color.Color {
-	c := cb.Matrix[y][x]
+	c := cb.Pix[y][x]
 	if c == nil {
 		return cb.ColorGrid
 	}
@@ -42,23 +53,23 @@ func (cb *CB) Get(x, y int) color.Color {
 }
 
 func (cb *CB) Set(x, y int, c color.Color) {
-	cb.Matrix[y][x] = c
+	cb.Pix[y][x] = c
 }
 
 func (cb *CB) Gen() image.Image {
-	w := cb.Rect.Dx()*12 + 2
-	h := cb.Rect.Dy()*12 + 2
+	w := cb.W*(cb.GridW+cb.GridD) + cb.GridD
+	h := cb.H*(cb.GridH+cb.GridD) + cb.GridD
 	m := image.NewRGBA(image.Rect(0, 0, w, h))
 	for px := 0; px < w; px++ {
 		for py := 0; py < h; py++ {
 			m.Set(px, py, cb.ColorBackGround)
 		}
 	}
-	for x := 0; x < cb.Rect.Dx(); x++ {
-		for y := 0; y < cb.Rect.Dy(); y++ {
+	for x := 0; x < cb.W; x++ {
+		for y := 0; y < cb.H; y++ {
 			color := cb.Get(x, y)
-			for px := 12*x + 2; px < 12*(x+1); px++ {
-				for py := 12*y + 2; py < 12*(y+1); py++ {
+			for px := (cb.GridW+cb.GridD)*x + cb.GridD; px < (cb.GridW+cb.GridD)*(x+1); px++ {
+				for py := (cb.GridH+cb.GridD)*y + cb.GridD; py < (cb.GridH+cb.GridD)*(y+1); py++ {
 					m.Set(px, py, color)
 				}
 			}
