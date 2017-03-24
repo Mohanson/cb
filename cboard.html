@@ -1,0 +1,62 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.0/vue.js"></script>
+</head>
+
+<body>
+    <svg id="cb" :width="x * (grid.x + grid.d)" :height="y * (grid.y + grid.d)">
+        <g v-for="ix in x">
+            <rect v-bind:width="grid.x" v-bind:height="grid.y" v-bind:x="(ix - 1) * (grid.x + grid.d)" v-bind:y="(iy - 1) * (grid.y + grid.d)"
+                v-bind:fill="color.negative" v-for="iy in y"></rect>
+            <rect v-bind:width="grid.x" v-bind:height="grid.y" v-bind:x="(ix - 1) * (grid.x + grid.d)" v-bind:y="(iy - 1) * (grid.y + grid.d)"
+                v-bind:fill="color.positive" v-for="iy in y" v-bind:style="'opacity:' + get(ix-1, iy-1)"></rect>
+        </g>
+    </svg>
+    <script>
+        var cb = new Vue({
+            el: '#cb',
+            data: {
+                x: 20,
+                y: 20,
+                grid: {
+                    x: 10,
+                    y: 10,
+                    d: 2,
+                },
+                color: {
+                    positive: "#cf6fc1",
+                    negative: "#ebedf0"
+                },
+                pix: []
+            },
+            created: function () {
+                pix = new Array(this.y)
+                for (iy = 0; iy < this.y; iy++) {
+                    row = new Array(this.x)
+                    for (ix = 0; ix < this.x; ix++) {
+                        row[ix] = 0
+                    }
+                    pix[iy] = row
+                }
+                this.pix = pix
+            },
+            methods: {
+                set: function (x, y, v) {
+                    Vue.set(this.pix[y], x, v)
+                },
+                get: function (x, y) {
+                    return this.pix[y][x]
+                }
+            }
+        })
+        cb.set(3, 4, 0.5)
+        cb.set(4, 4, 0.5)
+        cb.set(5, 4, 0.5)
+        cb.set(5, 3, 0.5)
+        cb.set(4, 2, 0.5)
+    </script>
+</body>
+
+</html>
